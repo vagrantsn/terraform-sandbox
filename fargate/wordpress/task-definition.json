@@ -1,0 +1,43 @@
+[
+  {
+    "name": "wordpress",
+    "image": "wordpress",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "wordpress-web",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "wordpress",
+        "awslogs-create-group": "true"
+      }
+    }
+  },
+  {
+    "name": "mysql",
+    "image": "mysql:5.7",
+    "essential": true,
+    "environment": [
+      { "name": "MYSQL_DATABASE", "value": "wordpress" },
+      { "name": "MYSQL_USER", "value": "wordpress" },
+      { "name": "MYSQL_PASSWORD", "value": "wordpress" },
+      { "name": "MYSQL_RANDOM_ROOT_PASSWORD", "value": "1" }
+
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "wordpress-mysql",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "wordpress",
+        "awslogs-create-group": "true"
+      }
+    }
+  }
+]
