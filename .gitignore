@@ -1,0 +1,8 @@
+*.lock.hcl
+.terraform
+
+*.apply
+*.destroy
+
+*.tfstate
+*.tfstate.backup
