@@ -2,6 +2,6 @@
 
 The infraestructure looks like this:
 
-![](img/cloud.png)
+![](img/cloud.svg)
 
-With task running Wordpres and MySQL:5.7 container images
+With task running Wordpres container image
