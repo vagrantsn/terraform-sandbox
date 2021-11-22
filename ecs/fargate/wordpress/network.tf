@@ -44,3 +44,18 @@ resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.main_a.id
   route_table_id = aws_vpc.main.default_route_table_id
 }
+
+resource "aws_subnet" "main_b" {
+  vpc_id            = aws_vpc.main.id
+  availability_zone = "us-east-1b"
+  cidr_block        = "10.0.2.0/24"
+
+  tags = {
+    "Name" = "Wordpress B"
+  }
+}
+
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.main_b.id
+  route_table_id = aws_vpc.main.default_route_table_id
+}
