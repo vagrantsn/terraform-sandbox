@@ -1,3 +1,9 @@
+locals {
+  zones         = ["us-east-1a", "us-east-1b"]
+  public_cidrs  = ["10.0.0.0/24"]
+  private_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
 
@@ -6,13 +12,21 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_route" "main" {
-  route_table_id         = aws_vpc.main.default_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw.id
+### Route tables
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
 }
 
-resource "aws_internet_gateway" "igw" {
+resource "aws_route" "public" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.public_internet.id
+}
+
+### Gateways
+
+resource "aws_internet_gateway" "public_internet" {
   vpc_id = aws_vpc.main.id
 
   tags = {
@@ -30,32 +44,36 @@ resource "aws_security_group_rule" "http" {
   security_group_id = aws_vpc.main.default_security_group_id
 }
 
-resource "aws_subnet" "main_a" {
-  vpc_id            = aws_vpc.main.id
-  availability_zone = "us-east-1a"
-  cidr_block        = "10.0.1.0/24"
+### Public Subnets
+
+resource "aws_subnet" "public" {
+  count                   = length(local.public_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  availability_zone       = element(local.zones, count.index)
+  cidr_block              = element(local.public_cidrs, count.index)
+  map_public_ip_on_launch = true
 
   tags = {
-    "Name" = "Wordpress A"
+    "Name" = "Wordpress Public"
   }
 }
 
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.main_a.id
-  route_table_id = aws_vpc.main.default_route_table_id
+resource "aws_route_table_association" "public" {
+  count          = length(aws_subnet.public.*)
+  subnet_id      = element(aws_subnet.public.*.id, count.index)
+  route_table_id = aws_route_table.public.id
 }
 
-resource "aws_subnet" "main_b" {
-  vpc_id            = aws_vpc.main.id
-  availability_zone = "us-east-1b"
-  cidr_block        = "10.0.2.0/24"
+### Private Subnets
+
+resource "aws_subnet" "private" {
+  count                   = length(local.private_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  availability_zone       = element(local.zones, count.index)
+  cidr_block              = element(local.private_cidrs, count.index)
+  map_public_ip_on_launch = false
 
   tags = {
-    "Name" = "Wordpress B"
+    "Name" = "Wordpress Private ${count.index}"
   }
-}
-
-resource "aws_route_table_association" "b" {
-  subnet_id      = aws_subnet.main_b.id
-  route_table_id = aws_vpc.main.default_route_table_id
 }

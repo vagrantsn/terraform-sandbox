@@ -19,7 +19,7 @@ resource "aws_ecs_service" "service" {
   launch_type   = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.main_a.id, aws_subnet.main_b.id]
+    subnets          = aws_subnet.public.*.id
     assign_public_ip = true
   }
 
@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "wp" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "${local.task_definition}"
+  container_definitions    = local.task_definition
   requires_compatibilities = ["FARGATE"]
   execution_role_arn       = aws_iam_role.exec.arn
 }

@@ -4,7 +4,6 @@
 *.apply
 *.destroy
 
-*.tfstate
-*.tfstate.backup
+*.tfstate*
 
 *.DS_Store
