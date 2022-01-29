@@ -1,6 +1,16 @@
 resource "aws_s3_bucket" "website" {
   bucket = "tf-website-bucket"
 
+  lifecycle_rule {
+    id      = "versions-clear"
+    enabled = true
+    prefix  = "/versions"
+
+    noncurrent_version_expiration {
+      days = 1
+    }
+  }
+
   website {
     index_document = "index.html"
     error_document = "error.html"
