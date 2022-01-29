@@ -4,6 +4,7 @@ resource "aws_cloudfront_origin_access_identity" "website_oai" {
 
 locals {
   origin_name = aws_s3_bucket.website.bucket_regional_domain_name
+  error_ttl   = 7200
 }
 
 resource "aws_cloudfront_distribution" "website" {
@@ -18,6 +19,20 @@ resource "aws_cloudfront_distribution" "website" {
 
   enabled             = true
   default_root_object = "index.html"
+
+  custom_error_response {
+    error_caching_min_ttl = local.error_ttl
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/error.html"
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = local.error_ttl
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/error.html"
+  }
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
